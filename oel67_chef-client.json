@@ -34,52 +34,6 @@
             "<tab> text ks=http://linuxdna.com/ks_sl.cfg<enter><wait>",
             "<enter>"
         ]
-    }],
 
-        "provisioners": [
-            {
-                "type": "shell",
-                "inline": [
-                    "echo 'creating chef/packer directories'",
-                    "sudo mkdir -p /tmp/packer-chef-client",
-                    "sudo chmod 777 /tmp/packer-chef-client",
-                    "sudo mkdir -p /etc/chef",
-                    "sudo chmod 777 /etc/chef",
-                    "echo 'done'"
-                ]
-            },
-            {
-                "type": "file",
-                "source": "/home/ctmcadams/chef-repo/.chef/linuxdna-validator.pem",
-                "destination": "/tmp/packer-chef-client/linuxdna-validator.pem"
-            },
-            {
-                "type": "shell",
-                "inline": [
-                    "sudo chmod 400 /tmp/packer-chef-client/linuxdna-validator.pem"
-                ]
-            },
-            {
-                "type": "file",
-                "source": "/home/ctmcadams/chef-repo/.chef/linuxdna-validator.pem",
-                "destination": "/etc/chef/validation.pem"
-            },
-            {
-                "type": "shell",
-                "inline": [
-                    "sudo chmod 400 /etc/chef/validation.pem"
-                ]
-            },
-        {
-        "type": "chef-client",
-        "server_url": "https://api.chef.io/organizations/linuxdna",
-        "validation_client_name": "linuxdna-validator",
-        "validation_key_path": "/home/ctmcadams/chef-repo/.chef/linuxdna-validator.pem", 
-        "guest_os_type": "unix",
-        "node_name": "oel67",
-        "run_list": [
-            "role[linux_server]"
-        ]
-    
     }]
 }
