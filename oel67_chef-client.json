@@ -1,0 +1,85 @@
+{
+    "variables": {
+        "ssh_name": "vagrant",
+        "ssh_pass": "vagrant",
+        "hostname": "oel67-chef-client"
+    },
+    "post-processors": ["vagrant"],
+    "builders": [{
+        "type": "virtualbox-iso",
+        "guest_os_type": "RedHat_64",
+        
+        "vboxmanage": [
+            ["modifyvm", "{{.Name}}", "--vram", "32"]
+        ],
+
+        "disk_size" : 10000,
+
+        "iso_url": "http://iso.linuxquestions.org/download/908/9369/http/ftp5.gwdg.de/OracleLinux-R6-U7-Server-x86_64-dvd.iso",
+        "iso_checksum": "dd7231b378f23e2e846ac78b0c5d8974a23631d5",
+        "iso_checksum_type": "sha1",
+
+        "http_directory" : "http_directory",
+        "http_port_min" : 9001,
+        "http_port_max" : 9001,
+
+        "ssh_username": "{{user `ssh_name`}}",
+        "ssh_password": "{{user `ssh_pass`}}",
+        "ssh_wait_timeout": "50m",
+
+        "shutdown_command": "echo {{user `ssh_pass`}} | sudo -S shutdown -P now",
+
+        "boot_command" : [
+            "<esc><esc><enter><wait>",
+            "<tab> text ks=http://linuxdna.com/ks_sl.cfg<enter><wait>",
+            "<enter>"
+        ]
+    }],
+
+        "provisioners": [
+            {
+                "type": "shell",
+                "inline": [
+                    "echo 'creating chef/packer directories'",
+                    "sudo mkdir -p /tmp/packer-chef-client",
+                    "sudo chmod 777 /tmp/packer-chef-client",
+                    "sudo mkdir -p /etc/chef",
+                    "sudo chmod 777 /etc/chef",
+                    "echo 'done'"
+                ]
+            },
+            {
+                "type": "file",
+                "source": "/home/ctmcadams/chef-repo/.chef/linuxdna-validator.pem",
+                "destination": "/tmp/packer-chef-client/linuxdna-validator.pem"
+            },
+            {
+                "type": "shell",
+                "inline": [
+                    "sudo chmod 400 /tmp/packer-chef-client/linuxdna-validator.pem"
+                ]
+            },
+            {
+                "type": "file",
+                "source": "/home/ctmcadams/chef-repo/.chef/linuxdna-validator.pem",
+                "destination": "/etc/chef/validation.pem"
+            },
+            {
+                "type": "shell",
+                "inline": [
+                    "sudo chmod 400 /etc/chef/validation.pem"
+                ]
+            },
+        {
+        "type": "chef-client",
+        "server_url": "https://api.chef.io/organizations/linuxdna",
+        "validation_client_name": "linuxdna-validator",
+        "validation_key_path": "/home/ctmcadams/chef-repo/.chef/linuxdna-validator.pem", 
+        "guest_os_type": "unix",
+        "node_name": "oel67",
+        "run_list": [
+            "role[linux_server]"
+        ]
+    
+    }]
+}
